@@ -1,3 +1,6 @@
+// To see the image, direct the output this program into a ppm file.
+// e.g. ./minray.out > minray.ppm
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
