@@ -62,7 +62,21 @@ class Sphere
             const float &transp = 0,
             const Vec3f &ec = 0
         ) : center(c), radius(r), radius_sqr(r * r), surface_color(sc), emission_color(ec), transparency(transp), reflection(refl)
-}
+
+        bool intersect(const Vec3f &ray_origin, const Vec3f &ray_dir, float &t0, float &t1) const
+        {
+            Vec3f l = center - ray_origin;
+            float tca = l.dot(ray_dir);
+            if (tca < 0) return false;
+            float d2 = l.dot(l) - tca * tca;
+            if (d2 > radius_sqr) return false;
+            float thc = sqrt(radius_sqr - d2);
+            t0 = tca - thc;
+            t1 = tca + thc;
+
+            return true;
+        }
+};
 
 int main(int argc, char **argv)
 {
