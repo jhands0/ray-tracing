@@ -14,6 +14,16 @@ class Vec3
         Vec3() : x(T(0)), y(T(0)), z(T(0)) {}
         Vec3(T xx) : x(xx), y(xx), z(xx) {}
         Vec3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {}
+        Vec3& normalize()
+        {
+            T nor_sqr = length_sqr();
+            if (nor_sqr > 0)
+            {
+                T nor_inv = 1 / sqrt(nor_sqr);
+                x *= nor_inv, y *= nor_inv, z *= nor_inv;
+            }
+            return *this;
+        }
 
         Vec3<T> operator * (const T &f) const { return Vec3<T>(x * f, y * f, z * f); }
         Vec3<T> operator * (const Vec3<T> &v) const { return Vec3<T>(x * v.x, y * v.y, z * v.z); }
@@ -29,9 +39,13 @@ class Vec3
             return os;
         }
 
-        
+        T dot(const Vec3<T> &v) const { return x * v.x + y * v.y + z * v.z; }
+        T length_sqr() const { return x * x + y * y + z * z; }
+        T length() const { return sqrt(length_sqr()); }
 
 };
+
+typedef Vec3<float> Vec3f;
 
 int main(int argc, char **argv)
 {
