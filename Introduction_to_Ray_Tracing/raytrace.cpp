@@ -47,6 +47,23 @@ class Vec3
 
 typedef Vec3<float> Vec3f;
 
+class Sphere
+{
+    public:
+        Vec3f center;
+        float radius, radius_sqr;
+        Vec3f surface_color, emission_color;
+        float transparency, reflection;
+        Sphere (
+            const Vec3f &c,
+            const float &r,
+            const Vec3f &sc,
+            const float &refl = 0,
+            const float &transp = 0,
+            const Vec3f &ec = 0
+        ) : center(c), radius(r), radius_sqr(r * r), surface_color(sc), emission_color(ec), transparency(transp), reflection(refl)
+}
+
 int main(int argc, char **argv)
 {
     return 0;
