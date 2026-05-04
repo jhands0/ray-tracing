@@ -78,7 +78,17 @@ class Sphere
         }
 };
 
+#define MAX_RAY_DEPTH 5
+
 int main(int argc, char **argv)
 {
+    srand48(42);
+    std::vector<Sphere> spheres;
+    spheres.push_back(Sphere(Vec3f( 0.0, ), 0.0, Vec3f( 0.0, ), 0.0, 0.0));
+
+    //Light
+    spheres.push_back(Sphere(Vec3f(0.0, 20, -30), 3, Vec3f(0.00, 0.00, 0.00), 0, 0.0, Vec3f(3)));
+    //render(spheres);
+
     return 0;
 }
