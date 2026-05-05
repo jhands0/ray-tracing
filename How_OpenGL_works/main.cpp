@@ -26,16 +26,21 @@ void line(int ax, int ay, int bx, int by, TGAImage &framebuffer, TGAColor color)
         std::swap(ay, by);
     }
 
+    int y = ay;
+    int ierror = 0;
     for (int x = ax; x <= bx; x++)
-    {
-        float t = (x - ax) / static_cast<float>(bx - ax);
-        int y = std::round(ay + (by - ay) * t);
-        
+    {   
         if (steep) 
             framebuffer.set(y, x, color);
         
         else 
             framebuffer.set(x, y, color);
+        ierror += 2 * std::abs(by - ay);
+        if (ierror > bx - ax)
+        {
+            y += by > ay ? 1 : -1;
+            ierror -= 2 * (bx - ax);
+        }
     }
 }
 
