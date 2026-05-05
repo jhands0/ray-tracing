@@ -1,5 +1,5 @@
 #pragma once
-#include <cassert.h>
+#include <cassert>
 
 template<int n> struct Point
 {
