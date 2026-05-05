@@ -1,3 +1,7 @@
+// Compilation instructions:
+// cmake -S . -B ./build
+// cmake --build ./build
+
 #include <cmath>
 #include "tgaimage.h"
 
