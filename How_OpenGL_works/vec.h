@@ -36,7 +36,7 @@ template<> struct Vec<4>
     double  operator[](const int i) const { assert(i>=0 && i<4); return i<2 ? (i ? y : x) : (i==2 ? z : w); }
     Vec<2> xy() const { return {x, y}; }
     Vec<3> xyz() const { return {x, y, z}; }
-}
+};
 
 typedef Vec<2> Vec2;
 typedef Vec<3> Vec3;

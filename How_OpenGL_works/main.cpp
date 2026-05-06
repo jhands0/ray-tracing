@@ -3,6 +3,7 @@
 // cmake --build ./build
 
 #include <cmath>
+#include "model.h"
 #include "tgaimage.h"
 
 constexpr int width = 128;
