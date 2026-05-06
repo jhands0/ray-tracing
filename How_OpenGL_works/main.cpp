@@ -66,11 +66,15 @@ void triangle(int ax, int ay, int az, int bx, int by, int bz, int cx, int cy, in
             double beta = signed_triangle_area(x, y, cx, cy, ax, ay) / total_area;
             double gamma = signed_triangle_area(x, y, ax, ay, bx, by) / total_area;
             if (alpha < 0 || beta < 0 || gamma < 0) continue;
-            uint8_t red = gamma * 255;
-            uint8_t green = beta * 255;
-            uint8_t blue = alpha * 255;
-            TGAColor color = {blue, green, red};
-            framebuffer.set(x, y, color);
+            float max = std::max(std::max(alpha + beta, beta + gamma), alpha + gamma);
+            if (max > 0.90f)
+            {
+                uint8_t red = gamma * 255;
+                uint8_t green = beta * 255;
+                uint8_t blue = alpha * 255;
+                TGAColor color = {blue, green, red};
+                framebuffer.set(x, y, color);
+            }
         }
     }
 }
