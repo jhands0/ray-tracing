@@ -52,7 +52,7 @@ double signed_triangle_area(int ax, int ay, int bx, int by, int cx, int cy)
     return .5 * ((by - ay)*(bx + ax) + (cy - by)*(cx + bx) + (ay - cy)*(ax + cx));
 }
 
-void triangle(int ax, int ay, int az, int bx, int by, int bz, int cx, int cy, int cz, TGAImage &framebuffer, TGAColor color)
+void triangle(int ax, int ay, int az, int bx, int by, int bz, int cx, int cy, int cz, TGAImage &framebuffer, TGAImage &zbuffer, TGAColor color)
 {
     int box_min_x = std::min(std::min(ax, bx), cx);
     int box_min_y = std::min(std::min(ay, by), cy);
@@ -81,20 +81,25 @@ void triangle(int ax, int ay, int az, int bx, int by, int bz, int cx, int cy, in
             //uint8_t blue = alpha * 255;
             //TGAColor color = {blue, green, red};
 
+            unsigned char z = static_cast<unsigned char>(alpha * az + beta * bz + gamma * cz);
+            if (z <= zbuffer.get(x, y)[0]) continue;
+
             framebuffer.set(x, y, color);
+            zbuffer.set(x, y, {z});
         }
     }
 }
 
 // Scale model to dimensions of output file
-std::tuple<int, int> project(Vec3 vert)
+std::tuple<int, int, int> project(Vec3 vert)
 {
-    return { (vert.x + 1.) * width / 2, (vert.y + 1.) * height / 2 };
+    return { (vert.x + 1.) * width / 2, (vert.y + 1.) * height / 2, (vert.z + 1.) * 255./2 };
 }
 
 int main(int argc, char **argv)
 {
     TGAImage framebuffer(width, height, TGAImage::RGB);
+    TGAImage zbuffer(width, height, TGAImage::GRAYSCALE);
 
     if (argc < 2)
     {
@@ -102,7 +107,7 @@ int main(int argc, char **argv)
         int bx = 55, by = 39, bz = 128;
         int cx = 23, cy = 59, cz = 255;
 
-        triangle(ax, ay, az, bx, by, bz, cx, cy, cz, framebuffer, red);
+        triangle(ax, ay, az, bx, by, bz, cx, cy, cz, framebuffer, zbuffer, red);
     }
     else if (argc == 2)
     {
@@ -110,12 +115,12 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < model.n_faces(); i++)
         {
-            auto [ax, ay] = project(model.vert(i, 0));
-            auto [bx, by] = project(model.vert(i, 1));
-            auto [cx, cy] = project(model.vert(i, 2));
+            auto [ax, ay, az] = project(model.vert(i, 0));
+            auto [bx, by, bz] = project(model.vert(i, 1));
+            auto [cx, cy, cz] = project(model.vert(i, 2));
             TGAColor color;
             for (int c = 0; c < 3; c++) color[c] = std::rand() % 255;
-            triangle(ax, ay, 0, bx, by, 0, cx, cy, 0, framebuffer, color);
+            triangle(ax, ay, az, bx, by, bz, cx, cy, cz, framebuffer, zbuffer, color);
         }
     }
     else 
@@ -125,5 +130,6 @@ int main(int argc, char **argv)
     }
 
     framebuffer.write_tga_file("framebuffer.tga");
+    zbuffer.write_tga_file("zbuffer.tga");
     return 0;
 }
