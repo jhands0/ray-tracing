@@ -66,16 +66,18 @@ void triangle(int ax, int ay, int az, int bx, int by, int bz, int cx, int cy, in
             double beta = signed_triangle_area(x, y, cx, cy, ax, ay) / total_area;
             double gamma = signed_triangle_area(x, y, ax, ay, bx, by) / total_area;
             if (alpha < 0 || beta < 0 || gamma < 0) continue;
-            unsigned char z = static_cast<unsigned char>(alpha * az + beta * bz + gamma * cz);
-            if (std::min(alpha, std::min(beta, gamma)) > .1) 
-                framebuffer.set(x, y, {z});
+            uint8_t red = gamma * 255;
+            uint8_t green = beta * 255;
+            uint8_t blue = alpha * 255;
+            TGAColor color = {blue, green, red};
+            framebuffer.set(x, y, color);
         }
     }
 }
 
 int main(int argc, char **argv)
 {
-    TGAImage framebuffer(width, height, TGAImage::GRAYSCALE);
+    TGAImage framebuffer(width, height, TGAImage::RGB);
 
     int ax = 17, ay = 4, az = 13;
     int bx = 55, by = 39, bz = 128;
