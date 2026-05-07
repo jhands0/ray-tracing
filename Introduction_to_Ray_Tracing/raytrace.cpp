@@ -145,7 +145,7 @@ Vec3f trace(const Vec3f &ray_origin, const Vec3f &ray_dir, const std::vector<Sph
                 Vec3f transmission = 1;
                 Vec3f light_dir = spheres[i].center - phit;
                 light_dir.normalize();
-                for (unsigned j = 0; i < spheres.size(); j++)
+                for (unsigned j = 0; j < spheres.size(); j++)
                 {
                     if (i != j)
                     {
@@ -168,20 +168,20 @@ Vec3f trace(const Vec3f &ray_origin, const Vec3f &ray_dir, const std::vector<Sph
 void render(const std::vector<Sphere> &spheres)
 {
     unsigned width = 700, height = 500;
-    Vec3f *image = new Vec3f[width * height], *pixel = image;
+    std::vector<Vec3f> image(height * width);
     float width_inv = 1 / float(width), height_inv = 1 / float(height);
     float aspect_ratio = width / float(height);
-    float angle = tan(M_PI * 0.5 * DEFAULT_FOV / 100.);
+    float angle = tan(M_PI * 0.5 * DEFAULT_FOV / 180.);
 
-    for (unsigned x = 0; x < width; x++)
+    for (unsigned y = 0; y < height; y++)
     {
-        for (unsigned y = 0; y < height; y++)
+        for (unsigned x = 0; x < width; x++)
         {
             float xx = (2 * ((x + 0.5) * width_inv) - 1) * angle * aspect_ratio;
             float yy = (1 - 2 * ((y + 0.5) * height_inv)) * angle;
             Vec3f ray_dir(xx, yy, -1);
             ray_dir.normalize();
-            *pixel = trace(Vec3f(0), ray_dir, spheres, 0);
+            image[(y * width) + x] = trace(Vec3f(0), ray_dir, spheres, 0);
         }
     }
 
@@ -194,7 +194,6 @@ void render(const std::vector<Sphere> &spheres)
                 (unsigned char) (std::min(float(1), image[i].z) * 255);
     }
     ofs.close();
-    delete [] image;
 }
 
 int main(int argc, char **argv)
