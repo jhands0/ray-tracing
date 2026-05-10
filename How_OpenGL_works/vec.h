@@ -81,3 +81,18 @@ template<> struct Vec<4>
 typedef Vec<2> Vec2;
 typedef Vec<3> Vec3;
 typedef Vec<4> Vec4;
+
+template<int n> double norm(const Vec<n> &v)
+{
+    return std::sqrt(v * v);
+}
+
+template<int n> Vec<n> normalise(const Vec<n> &v)
+{
+    return v / norm(v);
+}
+
+inline Vec3 cross(const Vec3 &v1, const Vec3 &v2)
+{
+    return {v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x};
+}
