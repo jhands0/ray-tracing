@@ -9,6 +9,46 @@ template<int n> struct Vec
     double  operator[](const int i) const { assert(i>=0 && i<n); return data[i]; }
 };
 
+template<int n> double operator * (const Vec<n> &lhs, const Vec<n> &rhs)
+{
+    double res = 0;
+    for (i = 0; i < n; i++) res += lhs[i] * rhs[i];
+    return res;
+}
+
+template<int n> Vec<n> operator + (const Vec<n> &lhs, const Vec<n> &rhs)
+{
+    Vec<n> res = lhs;
+    for (int i = 0; i < n; i++) res[i] += rhs[i];
+    return res;
+}
+
+template<int n> Vec<n> operator - (const Vec<n> &lhs, const Vec<n> &rhs)
+{
+    Vec<n> res = lhs;
+    for (int i = 0; i < n; i++) res[i] -= rhs[i];
+    return res;
+}
+
+template<int n> Vec<n> operator * (const Vec<n> &lhs, const double &rhs)
+{
+    Vec<n> res = lhs;
+    for (int i = 0; i < n; i++) res[i] *= rhs;
+    return res;
+}
+
+template<int n> Vec<n> operator * (const double &lhs, const Vec<n> &rhs)
+{
+    return rhs * lhs;
+}
+
+template<int n> Vec<n> operator * (const Vec<n> &lhs, const double &rhs)
+{
+    Vec<n> res = lhs;
+    for (int i = 0; i < n; i++) res[i] /= rhs;
+    return res; 
+}
+
 template<int n> std::ostream& operator << (std::ostream& out, const Vec<n>& v)
 {
     for (int i = 0; i < n; i++) out << v[i] << " ";
