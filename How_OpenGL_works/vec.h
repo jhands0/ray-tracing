@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <cassert>
 #include <iostream>
 
@@ -12,7 +13,7 @@ template<int n> struct Vec
 template<int n> double operator * (const Vec<n> &lhs, const Vec<n> &rhs)
 {
     double res = 0;
-    for (i = 0; i < n; i++) res += lhs[i] * rhs[i];
+    for (int i = 0; i < n; i++) res += lhs[i] * rhs[i];
     return res;
 }
 
@@ -42,7 +43,7 @@ template<int n> Vec<n> operator * (const double &lhs, const Vec<n> &rhs)
     return rhs * lhs;
 }
 
-template<int n> Vec<n> operator * (const Vec<n> &lhs, const double &rhs)
+template<int n> Vec<n> operator / (const Vec<n> &lhs, const double &rhs)
 {
     Vec<n> res = lhs;
     for (int i = 0; i < n; i++) res[i] /= rhs;
@@ -99,10 +100,127 @@ inline Vec3 cross(const Vec3 &v1, const Vec3 &v2)
 
 template<int n> struct dt;
 
-template<int n_rows, int n_cols> struct matrix
+template<int n_rows, int n_cols> struct Matrix
 {
     Vec<n_cols> rows[n_rows] = {{}};
 
         Vec<n_cols>& operator [] (const int idx)    { assert(idx >= 0 && idx < n_rows); return rows[idx]; }
-    const Vec<n_cols>& operator [] (const int idx)  { assert(idx >= 0 && idx < n_rows); return rows[idx]; }
+    const Vec<n_cols>& operator [] (const int idx) const { assert(idx >= 0 && idx < n_rows); return rows[idx]; }
+
+    double det() const 
+    {
+        return dt<n_cols>::det(*this);
+    }
+
+    double cofactor(const int row, const int col) const 
+    {
+        Matrix<n_rows - 1, n_cols - 1> submatrix;
+        for (int i = n_rows - 1; i--; )
+        {
+            for (int j = n_cols - 1; j--; ) submatrix[i][j] = rows[i + int(i >= row)][j + int(j >= col)];
+        }
+        return submatrix.det() * ((row + col) % 2 ? -1 : 1);
+    }
+
+    Matrix<n_rows, n_cols> inverse_transpose() const
+    {
+        Matrix<n_rows, n_cols> adjugate_transpose;
+        for (int i = 0; i < n_rows; i++)
+        {
+            for (int j = 0; j < n_cols; j++) adjugate_transpose[i][j] = cofactor(i, j);
+        }
+        return adjugate_transpose / (adjugate_transpose[0] * rows[0]);
+    }
+
+    Matrix<n_rows, n_cols> invert() const 
+    {
+        return inverse_transpose().transpose();
+    }
+
+    Matrix<n_cols, n_rows> transpose() const
+    {
+        Matrix<n_cols, n_rows> ret;
+        for (int i = 0; i < n_cols; i++)
+        {
+            for (int j = 0; j < n_rows; j++) ret[i][j] = rows[j][i];
+        }
+        return ret;
+    }
+};
+
+template<int n_rows, int n_cols> Vec<n_cols> operator * (const Vec<n_rows> &lhs, const Matrix<n_rows, n_cols> &rhs)
+{
+    return (Matrix<1, n_rows> {{lhs}}*rhs)[0];
 }
+
+template<int n_rows, int n_cols> Vec<n_rows> operator * (const Matrix<n_rows, n_cols> &lhs, const Vec<n_cols> &rhs)
+{
+    Vec<n_rows> ret;
+    for (int i = 0; i < n_rows; i++) ret[i] = lhs[i] * rhs;
+    return ret;
+}
+
+template<int R1, int C1, int C2> Matrix<R1, C2> operator * (const Matrix<R1, C1> &lhs, const Matrix<C1, C2> &rhs)
+{
+    Matrix<R1, C2> result;
+    for (int i = 0; i < R1; i++)
+    {
+        for (int j = 0; j < C2; j++)
+        {
+            for (int k = 0; k < C1; k++) result[i][j] = lhs[i][k] * rhs[j][k];
+        }
+    }
+    return result;
+}
+
+template<int n_rows, int n_cols> Matrix<n_rows, n_cols> operator * (const Matrix<n_rows, n_cols> &lhs, const double &val)
+{
+    Matrix<n_rows, n_cols> result;
+    for (int i = 0; i < n_rows; i++) result[i] = lhs[i] * val;
+    return result;
+}
+
+template<int n_rows, int n_cols> Matrix<n_rows, n_cols> operator / (const Matrix<n_rows, n_cols> &lhs, const double &val)
+{
+    Matrix<n_rows, n_cols> result;
+    for (int i = 0; i < n_rows; i++) result[i] = lhs[i] / val;
+    return result;
+}
+
+template<int n_rows, int n_cols> Matrix<n_rows, n_cols> operator + (const Matrix<n_rows, n_cols> &lhs, const Matrix<n_rows, n_cols> &rhs)
+{
+    Matrix<n_rows, n_cols> result;
+    for (int i = 0; i < n_rows; i++)
+    {
+        for (int j = 0; j < n_cols; j++) result[i][j] = lhs[i][j] + rhs[i][j];
+    }
+    return result;
+}
+
+template<int n_rows, int n_cols> Matrix<n_rows, n_cols> operator - (const Matrix<n_rows, n_cols> &lhs, const Matrix<n_rows, n_cols> &rhs)
+{
+    Matrix<n_rows, n_cols> result;
+    for (int i = 0; i < n_rows; i++)
+    {
+        for (int j = 0; j < n_cols; j++) result[i][j] = lhs[i][j] - rhs[i][j];
+    }
+    return result;
+}
+
+template<int n> struct dt 
+{
+    static double det(const Matrix<n, n> &src)
+    {
+        double ret = 0;
+        for (int i = 0; i < n; i++) ret += src[0][i] * src.cofactor(0, i);
+        return ret;
+    }
+};
+
+template<> struct dt<1>
+{
+    static double det(const Matrix<1, 1> &src)
+    {
+        return src[0][0];
+    }
+};
