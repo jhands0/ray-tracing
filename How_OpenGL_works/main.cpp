@@ -90,10 +90,25 @@ void triangle(int ax, int ay, int az, int bx, int by, int bz, int cx, int cy, in
     }
 }
 
+Vec3 rotate(Vec3 v)
+{
+    constexpr double angle = M_PI / 6;
+    constexpr Matrix<3, 3> Ry = {{
+        {std::cos(angle), 0, std::sin(angle)},
+        {0, 1, 0},
+        {-std::sin(angle), 0, std::cos(angle)}
+    }};
+    return Ry * v;
+}
+
 // Scale model to dimensions of output file
 std::tuple<int, int, int> project(Vec3 vert)
 {
-    return { (vert.x + 1.) * width / 2, (vert.y + 1.) * height / 2, (vert.z + 1.) * 255./2 };
+    return { 
+        (vert.x + 1.) * width / 2, 
+        (vert.y + 1.) * height / 2, 
+        (vert.z + 1.) * 255./2 
+    };
 }
 
 int main(int argc, char **argv)
@@ -115,9 +130,9 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < model.n_faces(); i++)
         {
-            auto [ax, ay, az] = project(model.vert(i, 0));
-            auto [bx, by, bz] = project(model.vert(i, 1));
-            auto [cx, cy, cz] = project(model.vert(i, 2));
+            auto [ax, ay, az] = project(rotate(model.vert(i, 0)));
+            auto [bx, by, bz] = project(rotate(model.vert(i, 1)));
+            auto [cx, cy, cz] = project(rotate(model.vert(i, 2)));
             TGAColor color;
             for (int c = 0; c < 3; c++) color[c] = std::rand() % 255;
             triangle(ax, ay, az, bx, by, bz, cx, cy, cz, framebuffer, zbuffer, color);
