@@ -101,6 +101,12 @@ Vec3 rotate(Vec3 v)
     return Ry * v;
 }
 
+Vec3 perspec(Vec3 v)
+{
+    constexpr double c = 3.;
+    return v / (1 - v.z / c);
+}
+
 // Scale model to dimensions of output file
 std::tuple<int, int, int> project(Vec3 vert)
 {
@@ -130,9 +136,9 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < model.n_faces(); i++)
         {
-            auto [ax, ay, az] = project(rotate(model.vert(i, 0)));
-            auto [bx, by, bz] = project(rotate(model.vert(i, 1)));
-            auto [cx, cy, cz] = project(rotate(model.vert(i, 2)));
+            auto [ax, ay, az] = project(perspec(rotate(model.vert(i, 0))));
+            auto [bx, by, bz] = project(perspec(rotate(model.vert(i, 1))));
+            auto [cx, cy, cz] = project(perspec(rotate(model.vert(i, 2))));
             TGAColor color;
             for (int c = 0; c < 3; c++) color[c] = std::rand() % 255;
             triangle(ax, ay, az, bx, by, bz, cx, cy, cz, framebuffer, zbuffer, color);
